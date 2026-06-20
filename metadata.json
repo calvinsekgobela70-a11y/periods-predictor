@@ -1,0 +1,6 @@
+{
+  "name": "Aura Flow",
+  "description": "A beautiful, calming period tracker and predictive cycle health companion with symptom logs and custom insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
