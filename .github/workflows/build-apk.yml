@@ -63,11 +63,10 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
-      # The Arena workspace cannot directly download Actions' blob-store
-      # artifacts. This opt-in handoff makes the APK retrievable over Git for
-      # this build, without adding it to the application branch permanently.
+      # Temporary handoff for this export: the Arena workspace cannot directly
+      # download Actions' blob-store artifacts. The tag is removed after the
+      # APK is retrieved, so it does not remain on the application branch.
       - name: Publish APK through temporary Git tag
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_apk_ref }}
         env:
           APK_TAG: apk-build-${{ github.run_id }}
         run: |
