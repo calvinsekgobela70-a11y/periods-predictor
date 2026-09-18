@@ -5,9 +5,15 @@ on:
     branches:
       - arena/01a0b4ec-periods-predictor
   workflow_dispatch:
+    inputs:
+      publish_apk_ref:
+        description: Publish the built APK through a temporary Git tag
+        required: false
+        type: boolean
+        default: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -56,3 +62,19 @@ jobs:
           name: period-predictor-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      # The Arena workspace cannot directly download Actions' blob-store
+      # artifacts. This opt-in handoff makes the APK retrievable over Git for
+      # this build, without adding it to the application branch permanently.
+      - name: Publish APK through temporary Git tag
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_apk_ref }}
+        env:
+          APK_TAG: apk-build-${{ github.run_id }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk Period-Predictor-debug.apk
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f Period-Predictor-debug.apk
+          git commit -m "build: temporary APK artifact [skip ci]"
+          git tag "$APK_TAG"
+          git push origin "refs/tags/$APK_TAG"
